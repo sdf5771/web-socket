@@ -1,3 +1,5 @@
+import http from 'http';
+import WebSocket from 'ws';
 import express from 'express';
 
 const app = express();
@@ -10,4 +12,9 @@ app.get("/*", (req, res) => res.render("notfound"));
 
 const handleAppListen = () => console.log('Server Start');
 
-app.listen(3000, handleAppListen);
+// app.listen(3000, handleAppListen);
+
+const server = http.createServer(app);
+const webSocketServer = new WebSocket.Server({ server });
+
+server.listen(3000, handleAppListen);
