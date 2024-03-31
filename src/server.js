@@ -24,11 +24,20 @@ const sockets = [];
 
 webSocketServer.on("connection", (socket) => {
     sockets.push(socket);
+    socket["nickname"] = "Anonymous";
     console.log("Socket Server : Connected to Browser ✅")
     socket.on("close", () => console.log("Disconnected from the Browser"));
-    socket.on("message", (message) => {
-        console.log("Browser Sending Message :", message.toString("utf-8"));
-        sockets.forEach((user) => user.send(message.toString("utf-8")));
+    socket.on("message", (strMsgData) => {
+        const message = JSON.parse(strMsgData);
+        switch(message.type){
+            case "new_message":
+                sockets.forEach((user) => user.send(`${socket.nickname}: ${message.payload}`));
+                break
+            
+            case "nickname":
+                socket["nickname"] = message.payload;
+                break
+        }
     })
 })
 
