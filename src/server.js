@@ -20,12 +20,15 @@ const server = http.createServer(app);
 // Create Web Socket Server with http Server
 const webSocketServer = new WebSocket.Server({ server });
 
+const sockets = [];
+
 webSocketServer.on("connection", (socket) => {
+    sockets.push(socket);
     console.log("Socket Server : Connected to Browser ✅")
     socket.on("close", () => console.log("Disconnected from the Browser"));
-    socket.send('socket: send message');
     socket.on("message", (message) => {
-        console.log("Browser Sending Message :", message);
+        console.log("Browser Sending Message :", message.toString("utf-8"));
+        sockets.forEach((user) => user.send(message.toString("utf-8")));
     })
 })
 
