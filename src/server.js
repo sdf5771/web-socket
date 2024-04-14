@@ -21,11 +21,8 @@ const socketIoServer = SocketIO(httpServer);
 
 socketIoServer.on("connection", (socket) => {
     socket.on("enter_room", (roomName, callback) => {
-        console.log(roomName);
-
-        setTimeout(() => {
-            callback("Create Room :", roomName);
-        }, 10000)
+        socket.join(roomName)
+        callback();
     })
 })
 
