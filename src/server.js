@@ -20,7 +20,13 @@ const httpServer = http.createServer(app);
 const socketIoServer = SocketIO(httpServer);
 
 socketIoServer.on("connection", (socket) => {
-    console.log(socket)
+    socket.on("enter_room", (roomName, callback) => {
+        console.log(roomName);
+
+        setTimeout(() => {
+            callback("Create Room :", roomName);
+        }, 10000)
+    })
 })
 
 // Create Web Socket Server with http Server
