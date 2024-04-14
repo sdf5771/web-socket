@@ -23,6 +23,18 @@ socketIoServer.on("connection", (socket) => {
     socket.on("enter_room", (roomName, callback) => {
         socket.join(roomName)
         callback();
+        socket.to(roomName).emit("welcome");
+    })
+
+    socket.on("new_message", (message, room, callback) => {
+        socket.to(room).emit("new_message", message);
+        callback();
+    })
+
+    socket.on('disconnecting', () => {
+        socket.rooms.forEach((room) => {
+            socket.to(room).emit("bye")
+        })
     })
 })
 
