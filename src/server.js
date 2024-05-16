@@ -19,22 +19,49 @@ const handleAppListen = () => console.log('Server Start');
 const httpServer = http.createServer(app);
 const socketIoServer = SocketIO(httpServer);
 
+function publicRooms(){
+    const {sockets: {adapater: {sids, rooms}}} = socketIoServer;
+    const publicRooms = [];
+
+    rooms.forEach((_, key) => {
+        if(sids.get(key) === undefined){
+            publicRooms.push(key);
+        }
+    })
+
+    return publicRomms;
+}
+
 socketIoServer.on("connection", (socket) => {
+    socket["nickname"] = "Anonymous";
+    socket.onAny((event) => {
+        console.log(socketIoServer.sockets.adapater);
+        console.log(`Sockey Event : ${event}`);
+
+    })
     socket.on("enter_room", (roomName, callback) => {
         socket.join(roomName)
         callback();
-        socket.to(roomName).emit("welcome");
+        socket.to(roomName).emit("welcome", socket.nickname);
+
+        socketIoServer.sockets.emit("room_change", publicRooms());
     })
 
     socket.on("new_message", (message, room, callback) => {
-        socket.to(room).emit("new_message", message);
+        socket.to(room).emit("new_message", `${socket.nickname}: ${message}`);
         callback();
     })
 
+    socket.on("nickname", nickname => socket["nickname"] = nickname);
+
     socket.on('disconnecting', () => {
         socket.rooms.forEach((room) => {
-            socket.to(room).emit("bye")
+            socket.to(room).emit("bye", socket.nickname)
         })
+    })
+
+    socket.on('disconnect', () => {
+        socketIoServer.sockets.emit("room_change", publicRooms());
     })
 })
 
